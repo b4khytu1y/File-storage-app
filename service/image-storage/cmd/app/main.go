@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"image-storage-service/image-storage/entity"
+	"image-storage-service/service/image-storage/entity"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

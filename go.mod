@@ -3,6 +3,7 @@ module awesome
 go 1.21.1
 
 require (
+	github.com/b4khytu1y/Image-storage-service v0.0.0-20231113103023-1a4d1f8333fb
 	github.com/gin-gonic/gin v1.9.1
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/postgres v1.5.4
