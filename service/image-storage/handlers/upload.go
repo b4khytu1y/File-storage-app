@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"database/sql"
+	"awesome/image-storage-service/service/image-storage/entity"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func UploadPhoto(db *sql.DB) gin.HandlerFunc {
+func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		file, err := c.FormFile("file")
 		if err != nil {
@@ -29,10 +30,13 @@ func UploadPhoto(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Запись в базу данных
-		_, err = db.Exec("INSERT INTO photos (name, data) VALUES ($1, $2)", file.Filename, bytes)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		newPhoto := entity.Photo{
+			Name: file.Filename,
+			Data: bytes,
+		}
+
+		if result := db.Create(&newPhoto); result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
 		}
 

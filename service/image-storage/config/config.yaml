@@ -2,5 +2,5 @@ db:
   host: "localhost"
   user: "postgres"
   password: "postgres"
-  dbname: "photo_db"
+  dbname: "postgres"
   port: "5432"
