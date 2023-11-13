@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"awesome/service/image-storage/entity"
+	"awesome/image-storage-service/service/image-storage/entity"
 	"database/sql"
 	"fmt"
 	"net/http"

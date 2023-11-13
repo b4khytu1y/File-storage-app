@@ -1,30 +1,27 @@
 package config
 
 import (
-	"io/ioutil"
-
-	"gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
 	DB struct {
-		User     string `yaml:"user"`
-		Password string `yaml:"password"`
-		DBName   string `yaml:"dbname"`
-		DBHost   string `yaml:"host"`
-		DBPort   string `yaml:"port"`
-	} `yaml:"db"`
+		Host     string
+		User     string
+		Password string
+		DBName   string
+		Port     string
+	}
 }
 
 func LoadConfig(configPath string) (*Config, error) {
-	cfg := &Config{}
-	bytes, err := ioutil.ReadFile(configPath)
-	if err != nil {
+	viper.SetConfigFile(configPath)
+	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
-	err = yaml.Unmarshal(bytes, cfg)
-	if err != nil {
+	cfg := &Config{}
+	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
 

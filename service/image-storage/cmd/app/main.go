@@ -1,6 +1,7 @@
 package main
 
 import (
+	"awesome/image-storage-service/service/image-storage/config"
 	"awesome/image-storage-service/service/image-storage/entity"
 	"fmt"
 	"net/http"
@@ -10,9 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectToDB(cfg Config) *gorm.DB {
+func ConnectToDB(cfg config.Config) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort)
+		cfg.DB.Host, cfg.DB.User, cfg.DB.Password, cfg.DB.DBName, cfg.DB.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -23,25 +24,21 @@ func ConnectToDB(cfg Config) *gorm.DB {
 }
 
 func main() {
-	cfg, err := LoadConfig("config.yaml")
+	cfg, err := config.LoadConfig("config.yaml")
 	if err != nil {
 		panic(err)
 	}
 
 	db := ConnectToDB(*cfg)
-
-	// Настройка Gin
+	ConnectToDB(*cfg)
 	router := gin.Default()
 
-	// Статические файлы
 	router.Static("/assets", "./assets")
 
-	// Маршрут для отображения формы загрузки
 	router.GET("/upload", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
 
-	// Обработчик загрузки изображений
 	router.POST("/upload", func(c *gin.Context) {
 		file, err := c.FormFile("file")
 		if err != nil {
@@ -49,15 +46,25 @@ func main() {
 			return
 		}
 
-		// Здесь можно добавить логику для сохранения файла с использованием GORM
-		// ...
+		filePath := "uploads/" + file.Filename
+
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		newPhoto := entity.Photo{
+			Name: file.Filename,
+		}
+		if result := db.Create(&newPhoto); result.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
 
 		c.String(http.StatusOK, "Файл успешно загружен")
 	})
 
-	// Загрузка HTML-шаблонов
 	router.LoadHTMLGlob("templates/*")
 
-	// Запуск сервера
 	router.Run(":8080")
 }
