@@ -32,7 +32,6 @@ func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		newPhoto := entity.Photo{
-			Name: file.Filename,
 			Data: bytes,
 		}
 

@@ -4,9 +4,11 @@ import (
 	"awesome/image-storage-service/service/image-storage/config"
 	"awesome/image-storage-service/service/image-storage/entity"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,13 +26,18 @@ func ConnectToDB(cfg config.Config) *gorm.DB {
 }
 
 func main() {
-	cfg, err := config.LoadConfig("config.yaml")
+	viper.SetConfigFile("D:\\go\\image-storage-service\\image-storage-service\\service\\image-storage\\config\\config.yaml")
+	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Ошибка при чтении конфигурации: %s", err)
 	}
 
-	db := ConnectToDB(*cfg)
-	ConnectToDB(*cfg)
+	var cfg config.Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		log.Fatalf("Ошибка при десериализации конфигурации: %s", err)
+	}
+
+	db := ConnectToDB(cfg)
 	router := gin.Default()
 
 	router.Static("/assets", "./assets")
@@ -53,9 +60,7 @@ func main() {
 			return
 		}
 
-		newPhoto := entity.Photo{
-			Name: file.Filename,
-		}
+		newPhoto := entity.Photo{}
 		if result := db.Create(&newPhoto); result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
@@ -64,7 +69,7 @@ func main() {
 		c.String(http.StatusOK, "Файл успешно загружен")
 	})
 
-	router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob("../../templates/*")
 
 	router.Run(":8080")
 }
