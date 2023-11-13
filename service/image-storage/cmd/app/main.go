@@ -1,8 +1,8 @@
 package main
 
 import (
+	"awesome/image-storage-service/service/image-storage/entity"
 	"fmt"
-	"image-storage-service/service/image-storage/entity"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
