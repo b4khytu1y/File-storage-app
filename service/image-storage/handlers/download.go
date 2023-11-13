@@ -1,36 +1,36 @@
 package handlers
 
-import (
-	"awesome/image-storage-service/service/image-storage/entity"
-	"database/sql"
-	"net/http"
-	"strconv"
+// import (
+// 	"awesome/image-storage-service/service/image-storage/entity"
+// 	"database/sql"
+// 	"net/http"
+// 	"strconv"
 
-	"github.com/gin-gonic/gin"
-)
+// 	"github.com/gin-gonic/gin"
+// )
 
-func DownloadPhoto(db *sql.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		idStr := c.Param("id")
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID"})
-			return
-		}
+// func DownloadPhoto(db *sql.DB) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		idStr := c.Param("id")
+// 		id, err := strconv.Atoi(idStr)
+// 		if err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный ID"})
+// 			return
+// 		}
 
-		var photo entity.Photo
-		err = db.QueryRow("SELECT id, data FROM photos WHERE id = $1", id).Scan(&photo.ID, &photo.Data)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(http.StatusNotFound, gin.H{"error": "Фотография не найдена"})
-			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			}
-			return
-		}
+// 		var photo entity.Photo
+// 		err = db.QueryRow("SELECT id, data FROM photos WHERE id = $1", id).Scan(&photo.ID, &photo.Data)
+// 		if err != nil {
+// 			if err == sql.ErrNoRows {
+// 				c.JSON(http.StatusNotFound, gin.H{"error": "Фотография не найдена"})
+// 			} else {
+// 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 			}
+// 			return
+// 		}
 
-		c.Writer.Header().Set("Content-Type", "application/octet-stream")
-		c.Writer.WriteHeader(http.StatusOK)
-		c.Writer.Write(photo.Data)
-	}
-}
+// 		c.Writer.Header().Set("Content-Type", "application/octet-stream")
+// 		c.Writer.WriteHeader(http.StatusOK)
+// 		c.Writer.Write(photo.Data)
+// 	}
+// }

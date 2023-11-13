@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Изображения</title>
+</head>
+<body>
+    <h1>Изображения</h1>
+    {{ range .photos }}
+    <div>
+        <h2>{{ .Name }}</h2>
+        <img src="/image/{{ .Name }}" alt="{{ .Name }}" style="width: 200px; height: auto;">
+    </div>
+    {{ else }}
+    <p>Изображения не найдены.</p>
+    {{ end }}
+</body>
+</html>
