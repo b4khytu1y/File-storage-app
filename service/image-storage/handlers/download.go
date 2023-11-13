@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"image-storage-service\image-storage\entity"
 	"database/sql"
 	"fmt"
 	"net/http"
