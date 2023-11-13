@@ -3,6 +3,7 @@ package main
 import (
 	"awesome/image-storage-service/service/image-storage/config"
 	"awesome/image-storage-service/service/image-storage/entity"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -43,6 +44,33 @@ func main() {
 
 	router.Static("/assets", "./assets")
 
+	router.GET("/image/:name", func(c *gin.Context) {
+		name := c.Param("name")
+
+		var photo entity.Photo
+		if result := db.Where("name = ?", name).First(&photo); result.Error != nil {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Изображение не найдено"})
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			}
+			return
+		}
+
+		c.Writer.Header().Set("Content-Type", "image/jpeg")
+		c.Writer.WriteHeader(http.StatusOK)
+		c.Writer.Write(photo.Data)
+	})
+	router.GET("/view", func(c *gin.Context) {
+		var photos []entity.Photo
+		if err := db.Find(&photos).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.HTML(http.StatusOK, "view.html", gin.H{"photos": photos})
+	})
+
 	router.GET("/upload", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
@@ -61,20 +89,17 @@ func main() {
 		}
 		defer src.Close()
 
-		// Чтение содержимого файла в память
 		data, err := ioutil.ReadAll(src)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Создание нового экземпляра Photo с данными файла
 		newPhoto := entity.Photo{
 			Name: file.Filename,
-			Data: data, // Данные файла сохраняются непосредственно в базу данных
+			Data: data,
 		}
 
-		// Сохранение экземпляра Photo в базу данных
 		if result := db.Create(&newPhoto); result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
