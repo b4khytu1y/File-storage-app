@@ -4,6 +4,7 @@ import (
 	"awesome/image-storage-service/service/image-storage/config"
 	"awesome/image-storage-service/service/image-storage/entity"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -53,16 +54,27 @@ func main() {
 			return
 		}
 
-		filePath := "uploads/" + file.Filename
+		src, err := file.Open()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer src.Close()
 
-		if err := c.SaveUploadedFile(file, filePath); err != nil {
+		// Чтение содержимого файла в память
+		data, err := ioutil.ReadAll(src)
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
+		// Создание нового экземпляра Photo с данными файла
 		newPhoto := entity.Photo{
 			Name: file.Filename,
+			Data: data, // Данные файла сохраняются непосредственно в базу данных
 		}
+
+		// Сохранение экземпляра Photo в базу данных
 		if result := db.Create(&newPhoto); result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
