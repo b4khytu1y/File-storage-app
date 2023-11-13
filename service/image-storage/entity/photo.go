@@ -1,6 +1,7 @@
 package entity
 
 type Photo struct {
-	ID   int    `json:"id"`
-	Data []byte `json:"data"`
+	ID   uint `gorm:"primary_key"`
+	Name string
+	Data []byte
 }

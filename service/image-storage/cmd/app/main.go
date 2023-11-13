@@ -60,7 +60,9 @@ func main() {
 			return
 		}
 
-		newPhoto := entity.Photo{}
+		newPhoto := entity.Photo{
+			Name: file.Filename,
+		}
 		if result := db.Create(&newPhoto); result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return

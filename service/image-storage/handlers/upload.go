@@ -1,10 +1,9 @@
 package handlers
 
 import (
+	"awesome/image-storage-service/service/image-storage/entity"
 	"io/ioutil"
 	"net/http"
-
-	"awesome/image-storage-service/service/image-storage/entity" // Путь к вашему пакету entity
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -32,15 +31,15 @@ func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		newPhoto := entity.Photo{
+			Name: file.Filename,
 			Data: bytes,
 		}
 
-		result := db.Create(&newPhoto)
-		if result.Error != nil {
+		if result := db.Create(&newPhoto); result.Error != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Фотография успешно загружена", "photo_id": newPhoto.ID})
+		c.JSON(http.StatusOK, gin.H{"message": "Фотография успешно загружена"})
 	}
 }
