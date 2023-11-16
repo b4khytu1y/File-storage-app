@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -15,16 +17,21 @@ type Config struct {
 }
 
 func LoadConfig(configPath string) (*Config, error) {
-	viper.SetConfigFile(configPath)
+	cfg := Config{}
 
-	if err := viper.ReadInConfig(); err != nil {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
+	viper.SetConfigFile("../../config")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	err = viper.Unmarshal(&cfg)
+	if err != nil {
 		return nil, err
 	}
 
-	cfg := &Config{}
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
+	return &cfg, nil
 }

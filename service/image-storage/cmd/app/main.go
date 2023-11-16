@@ -28,7 +28,7 @@ func ConnectToDB(cfg config.Config) *gorm.DB {
 }
 
 func main() {
-	viper.SetConfigFile("D:\\go\\image-storage-service\\image-storage-service\\service\\image-storage\\config\\config.yaml")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Ошибка при чтении конфигурации: %s", err)
