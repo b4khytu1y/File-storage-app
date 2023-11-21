@@ -62,13 +62,13 @@ func main() {
 		c.Writer.Write(photo.Data)
 	})
 	router.GET("/view", func(c *gin.Context) {
-		var photos []entity.Photo
-		if err := db.Find(&photos).Error; err != nil {
+		var photo []entity.Photo
+		if err := db.Find(&photo).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		c.HTML(http.StatusOK, "view.html", gin.H{"photos": photos})
+		c.HTML(http.StatusOK, "view.html", gin.H{"photo": photo})
 	})
 
 	router.GET("/upload", func(c *gin.Context) {
@@ -110,5 +110,5 @@ func main() {
 
 	router.LoadHTMLGlob("../../templates/*")
 
-	router.Run(":8080")
+	router.Run(":8085")
 }

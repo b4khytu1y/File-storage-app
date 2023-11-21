@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Изображения</h1>
-    {{ range .photos }}
+    {{ range .photo }}
     <div>
         <h2>{{ .Name }}</h2>
         <img src="/image/{{ .Name }}" alt="{{ .Name }}" style="width: 200px; height: auto;">

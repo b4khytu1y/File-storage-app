@@ -10,14 +10,14 @@ import (
 
 func ShowPhotos(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var photos []entity.Photo
-		if err := db.Find(&photos).Error; err != nil {
+		var photo []entity.Photo
+		if err := db.Find(&photo).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
 		c.HTML(http.StatusOK, "view.html", gin.H{
-			"photos": photos,
+			"photo": photo,
 		})
 	}
 }
