@@ -6,6 +6,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+// type DBConfig struct {
+// 	Host     string
+// 	User     string
+// 	Password string
+// 	DBName   string
+// 	Port     string
+// }
+
+// type Config2 struct {
+// 	DB DBConfig
+// }
+
 type Config struct {
 	DB struct {
 		Host     string

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"awesome/image-storage-service/service/image-storage/entity"
+	"awesome/image-storage-service/service/image-storage/internal/entity"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

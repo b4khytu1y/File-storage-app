@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"awesome/image-storage-service/service/image-storage/entity"
+	"awesome/image-storage-service/service/image-storage/internal/entity"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -41,5 +42,25 @@ func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "Фотография успешно загружена"})
+	}
+}
+func getImageHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var photo entity.Photo
+		name := c.Param("name")
+
+		// Retrieve the photo by name from the database
+		result := db.Where("name = ?", name).First(&photo)
+		if result.Error != nil {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+			return
+		}
+
+		// Respond with the photo data
+		c.Data(http.StatusOK, "image/jpeg", photo.Data)
 	}
 }

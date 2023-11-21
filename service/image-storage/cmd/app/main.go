@@ -2,18 +2,43 @@ package main
 
 import (
 	"awesome/image-storage-service/service/image-storage/config"
-	"awesome/image-storage-service/service/image-storage/entity"
+	"awesome/image-storage-service/service/image-storage/internal/entity"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const Bearer_schema = "Bearer "
+		header := c.GetHeader("Authorization")
+		if header == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "API token is required"})
+			return
+		}
+		tokenString := header[len(Bearer_schema):]
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte("your_secret_key"), nil
+		})
+
+		if token.Valid {
+			claims := token.Claims.(jwt.MapClaims)
+			c.Set("userID", claims["user_id"])
+		} else {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+	}
+}
 
 func ConnectToDB(cfg config.Config) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
@@ -41,10 +66,11 @@ func main() {
 
 	db := ConnectToDB(cfg)
 	router := gin.Default()
+	router.Use(TokenAuthMiddleware())
 
 	router.Static("/assets", "./assets")
 
-	router.GET("/image/:name", func(c *gin.Context) {
+	router.GET("/image/:name", TokenAuthMiddleware(), func(c *gin.Context) {
 		name := c.Param("name")
 
 		var photo entity.Photo
@@ -71,11 +97,11 @@ func main() {
 		c.HTML(http.StatusOK, "view.html", gin.H{"photos": photos})
 	})
 
-	router.GET("/upload", func(c *gin.Context) {
+	router.GET("/upload", TokenAuthMiddleware(), func(c *gin.Context) {
 		c.HTML(http.StatusOK, "upload.html", nil)
 	})
 
-	router.POST("/upload", func(c *gin.Context) {
+	router.POST("/upload", TokenAuthMiddleware(), func(c *gin.Context) {
 		file, err := c.FormFile("file")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -95,9 +121,11 @@ func main() {
 			return
 		}
 
+		userID := c.MustGet("userID").(int)
 		newPhoto := entity.Photo{
-			Name: file.Filename,
-			Data: data,
+			UserID: userID,
+			Name:   file.Filename,
+			Data:   data,
 		}
 
 		if result := db.Create(&newPhoto); result.Error != nil {
