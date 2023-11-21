@@ -5,6 +5,19 @@
     <title>Загрузка изображений</title>
 </head>
 <body>
+    <script>
+       fetch('http://localhost:8085/upload.html', {
+         method: 'GET', // или 'POST', 'PUT', 'DELETE' и т.д.
+        headers: {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFeHBpcmVzQXQiOjE3MDA1NjYwNzcsImVtYWlsIjoibXlsb2dpbkBtYWlsLnJ1IiwibmFtZSI6IiIsInVzZXJfaWQiOjV9.nizWQcY7qO-Ur6lPbTb47dtoNIeN-ut8fx4Xqwkvj4M'
+    }
+    // другие параметры запроса если нужны
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Ошибка:', error));
+
+    </script>
     <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="file" />
         <button type="submit">Загрузить</button>

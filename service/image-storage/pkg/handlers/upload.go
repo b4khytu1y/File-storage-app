@@ -12,6 +12,11 @@ import (
 
 func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		userID, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не аутентифицирован"})
+			return
+		}
 		file, err := c.FormFile("file")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -32,8 +37,9 @@ func UploadPhoto(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		newPhoto := entity.Photo{
-			Name: file.Filename,
-			Data: bytes,
+			UserID: userID.(int),
+			Name:   file.Filename,
+			Data:   bytes,
 		}
 
 		if result := db.Create(&newPhoto); result.Error != nil {
