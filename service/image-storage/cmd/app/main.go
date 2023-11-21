@@ -17,43 +17,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func TokenAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		const Bearer_schema = "Bearer "
-		header := c.GetHeader("Authorization")
-		if header == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "API token is required"})
-			return
-		}
-		tokenString := header[len(Bearer_schema):]
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte("your_secret_key"), nil
-		})
-
-		if token.Valid {
-			claims := token.Claims.(jwt.MapClaims)
-			c.Set("userID", claims["user_id"])
-		} else {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			return
-		}
-	}
-}
-
-func ConnectToDB(cfg config.Config) *gorm.DB {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		cfg.DB.Host, cfg.DB.User, cfg.DB.Password, cfg.DB.DBName, cfg.DB.Port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	db.AutoMigrate(&entity.Photo{})
-	return db
-}
-
 func main() {
-
+	viper.SetConfigFile("D:\\go\\image-storage-service\\image-storage-service\\service\\image-storage\\config\\config.yaml")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Ошибка при чтении конфигурации: %s", err)
@@ -139,4 +104,39 @@ func main() {
 	router.LoadHTMLGlob("../../templates/*")
 
 	router.Run(":8080")
+}
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		const Bearer_schema = "Bearer "
+		header := c.GetHeader("Authorization")
+		if header == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "API token is required"})
+			return
+		}
+		tokenString := header[len(Bearer_schema):]
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte("your_secret_key"), nil
+		})
+
+		if token.Valid {
+			claims := token.Claims.(jwt.MapClaims)
+			c.Set("userID", claims["user_id"])
+		} else {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+	}
+}
+
+func ConnectToDB(cfg config.Config) *gorm.DB {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		cfg.DB.Host, cfg.DB.User, cfg.DB.Password, cfg.DB.DBName, cfg.DB.Port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	db.AutoMigrate(&entity.Photo{})
+	return db
 }
