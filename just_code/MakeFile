@@ -1,0 +1,38 @@
+LINTER_COMMAND := golangci-lint run
+
+lint:
+    $(LINTER_COMMAND)
+
+build:
+	go build -o main ./cmd/app/auth
+
+run:
+	go run ./cmd/app/auth
+
+test:
+	go test -v ./...
+
+build-run: build run
+
+lint:
+	golangci-lint run
+
+clean:
+	rm -f main
+
+docker-build:
+	docker build -t docker-image-name
+
+docker-run:
+	docker run -p 9090:9091 docker-image
+
+help:
+	@echo "Available targets:"
+	@echo "  build          - Build the project"
+	@echo "  run            - Run the project"
+	@echo "  test           - Run tests"
+	@echo "  build-run      - Build and run the project"
+	@echo "  lint           - Run linters"
+	@echo "  clean          - Clean up temporary files and binaries"
+	@echo "  docker-build   - Build a Docker image"
+	@echo "  docker-run     - Run a Docker container"
