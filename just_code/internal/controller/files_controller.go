@@ -130,12 +130,102 @@ func (fc *FileController) GetUserFiles(c *gin.Context) {
 		return
 	}
 
-	userFiles, err := fc.fileService.GetFilesByUserID(userID)
+	user, err := fc.fileService.GetUserByID(userID)
 	if err != nil {
-		log.Printf("Ошибка при получении файлов пользователя: %v", err)
+		log.Printf("Ошибка при получении данных пользователя: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении данных пользователя"})
+		return
+	}
+
+	var isAdminString string
+	if user.IsAdmin == "1" {
+		isAdminString = "1"
+	} else {
+		isAdminString = "0"
+	}
+
+	userFiles, err := fc.fileService.GetFilesByUserID(userID, isAdminString)
+	if err != nil {
+		log.Printf("Ошибка при получении файлов: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении файлов"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"files": userFiles})
+}
+func (fc *FileController) UpdateFile(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
+	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+		tokenString = tokenString[7:]
+	}
+
+	userID, err := utils.ValidateToken(tokenString, "Secret")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Невалидный токен"})
+		return
+	}
+
+	fileIDString := c.Param("id")
+	fileID, err := strconv.Atoi(fileIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат ID файла"})
+		return
+	}
+
+	existingFile, err := fc.fileService.GetFileByID(fileID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Файл не найден"})
+		return
+	}
+
+	user, err := fc.fileService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении данных пользователя"})
+		return
+	}
+
+	if user.IsAdmin != "1" && existingFile.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Нет доступа к обновлению файла"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Файл успешно обновлен"})
+}
+func (fc *FileController) DeleteFile(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
+	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+		tokenString = tokenString[7:]
+	}
+
+	userID, err := utils.ValidateToken(tokenString, "Secret")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Невалидный токен"})
+		return
+	}
+
+	fileIDString := c.Param("id")
+	fileID, err := strconv.Atoi(fileIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат ID файла"})
+		return
+	}
+
+	existingFile, err := fc.fileService.GetFileByID(fileID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Файл не найден"})
+		return
+	}
+
+	user, err := fc.fileService.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении данных пользователя"})
+		return
+	}
+
+	if user.IsAdmin != "1" && existingFile.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Нет доступа к удалению файла"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Файл успешно удален"})
 }

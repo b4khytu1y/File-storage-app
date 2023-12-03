@@ -37,7 +37,7 @@ func main() {
 	userRepository := repository.NewUsersRepositoryImpl(db)
 	fileRepository := repository.NewFileRepositoryImpl(db)
 
-	fileService := service.NewFileServiceImpl(fileRepository)
+	fileService := service.NewFileServiceImpl(fileRepository, userRepository)
 
 	authenticationService := service.NewAuthenticationServiceImpl(userRepository, validate)
 
