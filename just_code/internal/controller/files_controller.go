@@ -11,6 +11,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type FileController struct {
@@ -21,6 +23,16 @@ func NewFileController(fileService service.FileService) *FileController {
 	return &FileController{fileService: fileService}
 }
 
+// UploadFile godoc
+// @Summary Upload a file
+// @Description Upload a new file
+// @Tags files
+// @Accept multipart/form-data
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param file formData file true "Upload file"
+// @Success 200 {object} map[string]interface{}
+// @Router /files/upload [post]
 func (fc *FileController) UploadFile(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -73,6 +85,15 @@ func (fc *FileController) UploadFile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Файл успешно загружен"})
 }
 
+// GetFile godoc
+// @Summary Retrieve a file
+// @Description Get details of a file by file ID
+// @Tags files
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param id path int true "File ID"
+// @Success 200 {object} model.FileModel
+// @Router /files/{id} [get]
 func (fc *FileController) GetFile(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -118,6 +139,15 @@ func (fc *FileController) GetFile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"file": file})
 }
+
+// GetUserFiles godoc
+// @Summary Retrieve all files for a user
+// @Description Get all files uploaded by a user
+// @Tags files
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Success 200 {array} model.FileModel
+// @Router /files/user [get]
 func (fc *FileController) GetUserFiles(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -153,6 +183,16 @@ func (fc *FileController) GetUserFiles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"files": userFiles})
 }
+
+// UpdateFile godoc
+// @Summary Update a file
+// @Description Update file details
+// @Tags files
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param id path int true "File ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /files/{id} [put]
 func (fc *FileController) UpdateFile(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -191,6 +231,16 @@ func (fc *FileController) UpdateFile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Файл успешно обновлен"})
 }
+
+// DeleteFile godoc
+// @Summary Delete a file
+// @Description Delete a file by file ID
+// @Tags files
+// @Produce json
+// @Param Authorization header string true "Authorization"
+// @Param id path int true "File ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /files/{id} [delete]
 func (fc *FileController) DeleteFile(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -228,4 +278,11 @@ func (fc *FileController) DeleteFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Файл успешно удален"})
+}
+func SetupRouter() *gin.Engine {
+	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	return r
 }

@@ -16,6 +16,25 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// @title           Swagger API
+// @version         1.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 
 	loadConfig, err := config.LoadConfig(".")
@@ -23,16 +42,9 @@ func main() {
 		log.Fatal("🚀 Could not load environment variables", err)
 	}
 
-	//Database
 	db := config.ConnectionDB(&loadConfig)
 	validate := validator.New()
 	db.Table("users").AutoMigrate(&model.Users{})
-
-	// log.Println("Starting auto migration files")
-	// err = db.Table("files").AutoMigrate(&model.Users{}, &model.FileModel{})
-	// if err != nil {
-	// 	log.Fatalf("Auto migration failed: %v", err)
-	// }
 
 	userRepository := repository.NewUsersRepositoryImpl(db)
 	fileRepository := repository.NewFileRepositoryImpl(db)
@@ -56,4 +68,5 @@ func main() {
 
 	server_err := server.ListenAndServe()
 	helper.ErrorPanic(server_err)
+
 }

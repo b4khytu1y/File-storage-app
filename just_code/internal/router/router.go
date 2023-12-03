@@ -37,6 +37,6 @@ func NewRouter(userRepository repository.UsersRepository, authenticationControll
 	filesRouter.PUT("/:id", middleware.DeserializeUser(userRepository), fileController.UpdateFile)
 	filesRouter.DELETE("/delete/:id", middleware.DeserializeUser(userRepository), fileController.DeleteFile)
 	filesRouter.POST("/upload", middleware.DeserializeUser(userRepository), fileController.UploadFile)
-
 	return service
+
 }
