@@ -32,10 +32,10 @@ func NewRouter(userRepository repository.UsersRepository, authenticationControll
 	usersRouter.DELETE("/:id", middleware.DeserializeUser(userRepository), usersController.DeleteUser)
 
 	filesRouter := router.Group("/files")
-	filesRouter.GET("", middleware.DeserializeUser(userRepository), fileController.GetFile)
+	filesRouter.GET("", middleware.DeserializeUser(userRepository), fileController.GetUserFiles)
 	filesRouter.GET("/:id", middleware.DeserializeUser(userRepository), fileController.GetFile)
-	filesRouter.PUT("/:id", middleware.DeserializeUser(userRepository), fileController.GetFile)
-	filesRouter.DELETE("/:id", middleware.DeserializeUser(userRepository), fileController.GetFile)
+	filesRouter.PUT("/:id", middleware.DeserializeUser(userRepository), fileController.GetUserFiles)
+	filesRouter.DELETE("/:id", middleware.DeserializeUser(userRepository), fileController.GetUserFiles)
 	filesRouter.POST("/upload", middleware.DeserializeUser(userRepository), fileController.UploadFile)
 
 	return service

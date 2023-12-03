@@ -7,5 +7,6 @@ import (
 type FileService interface {
 	SaveFile(file *model.FileModel) error
 	GetFileByID(id int) (*model.FileModel, error)
-	GetUserByID(id int) (*model.Users, error)
+	GetUserByID(userID int) (*model.Users, error)
+	GetFilesByUserID(userID int) ([]model.FileModel, error)
 }

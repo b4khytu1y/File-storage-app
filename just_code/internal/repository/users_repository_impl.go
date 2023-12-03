@@ -96,3 +96,14 @@ func (u *UsersRepositoryImpl) DeleteUser(userID int) error {
 
 	return nil
 }
+func (repo *UsersRepositoryImpl) GetUserByID(userID int) (*model.Users, error) {
+	var user model.Users
+	result := repo.Db.First(&user, userID)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}

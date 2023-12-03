@@ -20,9 +20,25 @@ func (repo *FileRepositoryImpl) Save(file *model.FileModel) error {
 
 func (repo *FileRepositoryImpl) FindByID(id int) (*model.FileModel, error) {
 	var file model.FileModel
-	err := repo.DB.Where("id = ?", id).First(&file).Error
-	if err != nil {
-		return nil, err
+	result := repo.DB.Preload("User").First(&file, id)
+	if result.Error != nil {
+		return nil, result.Error
 	}
 	return &file, nil
+}
+
+func (repo *FileRepositoryImpl) FindAll(files *[]model.FileModel) error {
+	result := repo.DB.Preload("User").Find(files)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (repo *FileRepositoryImpl) FindByUserID(userID int, files *[]model.FileModel) error {
+	result := repo.DB.Preload("User").Where("user_id = ?", userID).Find(files)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

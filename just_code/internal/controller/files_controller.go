@@ -99,9 +99,43 @@ func (fc *FileController) GetFile(c *gin.Context) {
 
 	file, err := fc.fileService.GetFileByID(fileID)
 	if err != nil {
+		log.Printf("Ошибка при получении файла: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Файл не найден"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"file": file, "userID": userID})
+	user, err := fc.fileService.GetUserByID(userID)
+	if err != nil {
+		log.Printf("Ошибка при получении данных пользователя: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении данных пользователя"})
+		return
+	}
+
+	if user.IsAdmin != "1" && file.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Нет доступа к этому файлу"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"file": file})
+}
+func (fc *FileController) GetUserFiles(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
+	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+		tokenString = tokenString[7:]
+	}
+
+	userID, err := utils.ValidateToken(tokenString, "Secret")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Невалидный токен"})
+		return
+	}
+
+	userFiles, err := fc.fileService.GetFilesByUserID(userID)
+	if err != nil {
+		log.Printf("Ошибка при получении файлов пользователя: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении файлов"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"files": userFiles})
 }
