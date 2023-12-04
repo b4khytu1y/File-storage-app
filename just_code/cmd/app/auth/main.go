@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"golang-jwttoken/config"
-	"golang-jwttoken/internal/controller"
 	"golang-jwttoken/internal/model"
 	"golang-jwttoken/internal/repository"
 	"golang-jwttoken/internal/router"
@@ -11,6 +10,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"golang-jwttoken/internal/controller"
 
 	"log"
 	"net/http"
@@ -42,7 +43,7 @@ func main() {
 
 	loadConfig, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatal("🚀 Could not load environment variables", err)
+		log.Fatal("Could not load environment variables", err)
 	}
 
 	db := config.ConnectionDB(&loadConfig)
