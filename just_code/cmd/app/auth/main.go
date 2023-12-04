@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"golang-jwttoken/config"
 	"golang-jwttoken/internal/controller"
 	"golang-jwttoken/internal/model"
@@ -76,5 +77,14 @@ func main() {
 	}()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server exiting")
 }
