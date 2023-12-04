@@ -25,7 +25,7 @@ func InitJaeger() (opentracing.Tracer, io.Closer, error) {
 
 	var err error
 	var closer io.Closer
-	Tracer, closer, err = cfg.New("auth-service")
+	Tracer, closer, err = cfg.New("just_code") //nolint:staticcheck
 	return Tracer, closer, err
 }
 

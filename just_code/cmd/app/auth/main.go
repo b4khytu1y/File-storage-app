@@ -3,11 +3,13 @@ package main
 import (
 	"golang-jwttoken/config"
 	"golang-jwttoken/internal/controller"
-	"golang-jwttoken/internal/helper"
 	"golang-jwttoken/internal/model"
 	"golang-jwttoken/internal/repository"
 	"golang-jwttoken/internal/router"
 	"golang-jwttoken/internal/service"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"log"
 	"net/http"
@@ -44,7 +46,7 @@ func main() {
 
 	db := config.ConnectionDB(&loadConfig)
 	validate := validator.New()
-	db.Table("users").AutoMigrate(&model.Users{})
+	db.Table("users").AutoMigrate(&model.Users{}) //nolint:errcheck
 
 	userRepository := repository.NewUsersRepositoryImpl(db)
 	fileRepository := repository.NewFileRepositoryImpl(db)
@@ -67,8 +69,12 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	server_err := server.ListenAndServe()
-	helper.ErrorPanic(server_err)
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("ListenAndServe(): %s", err)
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 }
