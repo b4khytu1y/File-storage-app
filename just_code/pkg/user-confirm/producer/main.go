@@ -10,7 +10,7 @@ func main() {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 
-	producer, err := sarama.NewSyncProducer([]string{"localhost:9092"}, config)
+	producer, err := sarama.NewSyncProducer([]string{"localhost:9055"}, config)
 	if err != nil {
 		log.Fatalln("Не удалось создать продьюсера:", err)
 	}

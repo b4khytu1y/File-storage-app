@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/dbname?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/postgres?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func confirmUserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	var id int
-	err := db.QueryRow("SELECT id FROM user_confirmations WHERE code = $1", request.Code).Scan(&id)
+	err := db.QueryRow("SELECT id FROM users WHERE code = $1", request.Code).Scan(&id)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -47,7 +47,7 @@ func confirmUserHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
-	_, err = db.Exec("UPDATE user_confirmations SET confirmed = TRUE WHERE id = $1", id)
+	_, err = db.Exec("UPDATE users SET confirmation = TRUE WHERE id = $1", id)
 	if err != nil {
 		log.Printf("Ошибка при обновлении пользователя: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
