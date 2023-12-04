@@ -55,7 +55,9 @@ func main() {
 
 	authenticationController := controller.NewAuthenticationController(authenticationService)
 	usersController := controller.NewUsersController(userRepository)
-	fileController := controller.NewFileController(fileService)
+	fileController := controller.NewFileControllerBuilder().
+		SetFileService(fileService).
+		Build()
 	routes := router.NewRouter(userRepository, authenticationController, usersController, fileController)
 
 	server := &http.Server{
