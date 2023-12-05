@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 
+	_ "golang-jwttoken/docs"
 	"golang-jwttoken/internal/data/request"
 	"golang-jwttoken/internal/data/response"
 	"golang-jwttoken/internal/helper"

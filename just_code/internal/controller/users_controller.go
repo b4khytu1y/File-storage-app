@@ -1,6 +1,7 @@
 package controller
 
 import (
+	_ "golang-jwttoken/docs"
 	"golang-jwttoken/internal/data/response"
 	"golang-jwttoken/internal/model"
 	"golang-jwttoken/internal/repository"
