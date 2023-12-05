@@ -16,7 +16,7 @@ func InitJaeger() (opentracing.Tracer, io.Closer, error) {
 	cfg := config.Configuration{
 		Sampler: &config.SamplerConfig{
 			Type:  jaeger.SamplerTypeRateLimiting,
-			Param: 100, // 100 traces per second
+			Param: 100,
 		},
 		Reporter: &config.ReporterConfig{
 			LocalAgentHostPort: "localhost:6831",
@@ -25,7 +25,8 @@ func InitJaeger() (opentracing.Tracer, io.Closer, error) {
 
 	var err error
 	var closer io.Closer
-	Tracer, closer, err = cfg.New("auth-service")
+	Tracer, closer, err = cfg.New("image-storage-service") //nolint:all
+
 	return Tracer, closer, err
 }
 

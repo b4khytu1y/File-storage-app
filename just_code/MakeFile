@@ -36,7 +36,7 @@ help:
 	@echo "  clean          - Clean up temporary files and binaries"
 	@echo "  docker-build   - Build a Docker image"
 	@echo "  docker-run     - Run a Docker container"
-# Tools.
+
 TOOLS = ./tools
 TOOLS_BIN = $(TOOLS)/bin
 

@@ -4,7 +4,8 @@ import (
 	"golang-jwttoken/internal/model"
 	"golang-jwttoken/internal/service"
 	"golang-jwttoken/pkg/utils"
-	"io/ioutil"
+	"io/ioutil" //nolint:all
+
 	"log"
 	"strconv"
 

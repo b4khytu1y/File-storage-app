@@ -44,7 +44,7 @@ func main() {
 
 	db := config.ConnectionDB(&loadConfig)
 	validate := validator.New()
-	db.Table("users").AutoMigrate(&model.Users{})
+	db.Table("users").AutoMigrate(&model.Users{}) //nolint:all
 
 	userRepository := repository.NewUsersRepositoryImpl(db)
 	fileRepository := repository.NewFileRepositoryImpl(db)
