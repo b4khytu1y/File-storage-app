@@ -1,22 +1,392 @@
 basePath: /api
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  model.FileModel:
+    properties:
+      content:
+        items:
+          type: integer
+        type: array
+      contentType:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      size:
+        type: integer
+      user:
+        $ref: '#/definitions/model.Users'
+      userID:
+        type: integer
+    type: object
+  model.Users:
+    properties:
+      conformation:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      isAdmin:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  request.CreateUsersRequest:
+    properties:
+      email:
+        maxLength: 100
+        minLength: 2
+        type: string
+      isadmin:
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        maxLength: 100
+        minLength: 2
+        type: string
+      username:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - isadmin
+    - password
+    - username
+    type: object
+  request.LoginRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 2
+        type: string
+      username:
+        maxLength: 200
+        minLength: 2
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  response.LoginResponse:
+    properties:
+      token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
 host: localhost:8080
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server celler server.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Swagger API
+  contact: {}
+  description: A Tag service API in Go using Gin framework
+  title: Tag Service API
   version: "1.0"
-paths: {}
-securityDefinitions:
-  BasicAuth:
-    type: basic
+paths:
+  /files:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a new file to the server
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Файл успешно загружен
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Upload a file
+      tags:
+      - files
+  /files/{id}:
+    delete:
+      description: Deletes a file by its ID
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Файл успешно удален
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a file
+      tags:
+      - files
+    get:
+      description: Retrieves a file by its ID
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File data
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve a file
+      tags:
+      - files
+    put:
+      consumes:
+      - application/json
+      description: Updates the metadata of a specified file
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Файл успешно обновлен
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Update file information
+      tags:
+      - files
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return token
+      parameters:
+      - description: Login Information
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                Data:
+                  $ref: '#/definitions/response.LoginResponse'
+              type: object
+        "400":
+          description: Invalid username or password
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Login user
+      tags:
+      - authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Registration Information
+        in: body
+        name: createUsersRequest
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUsersRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created user!
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Register user
+      tags:
+      - authentication
+  /user/files:
+    get:
+      description: Retrieves all files uploaded by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FileModel'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve files of a user
+      tags:
+      - files
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of users, admin can retrieve all, others can retrieve
+        only their information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetch user data
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific user, accessible to admin or the user themselves
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User successfully deleted
+        "400":
+          description: Invalid user ID format
+        "403":
+          description: No rights to delete this user
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Retrieves details of a specific user, accessible to admin or the
+        user themselves
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully fetch user data
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid user ID format
+        "404":
+          description: User not found
+      security:
+      - ApiKeyAuth: []
+      summary: Get a single user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user details, accessible to admin or the user themselves
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated User Information
+        in: body
+        name: updatedUser
+        required: true
+        schema:
+          $ref: '#/definitions/model.Users'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User successfully updated
+        "400":
+          description: Invalid user ID format or data format
+        "403":
+          description: No rights to update this user
+      security:
+      - ApiKeyAuth: []
+      summary: Update a user
+      tags:
+      - users
 swagger: "2.0"
