@@ -18,7 +18,6 @@ func NewUsersRepositoryImpl(Db *gorm.DB) UsersRepository {
 	return &UsersRepositoryImpl{Db: Db}
 }
 
-// Delete implements UsersRepository
 func (u *UsersRepositoryImpl) Delete(usersId int) {
 	var users model.Users
 	result := u.Db.Where("id = ?", usersId).Delete(&users)
@@ -95,4 +94,15 @@ func (u *UsersRepositoryImpl) DeleteUser(userID int) error {
 	}
 
 	return nil
+}
+func (repo *UsersRepositoryImpl) GetUserByID(userID int) (*model.Users, error) {
+	var user model.Users
+	result := repo.Db.First(&user, userID)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &user, nil
 }

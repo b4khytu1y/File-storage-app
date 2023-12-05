@@ -15,6 +15,6 @@ func ConnectionDB(config *Config) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 	helper.ErrorPanic(err)
 
-	fmt.Println("🚀 Connected Successfully to the Database")
+	fmt.Println("Connected Successfully to the Database")
 	return db
 }

@@ -11,4 +11,5 @@ type UsersRepository interface {
 	FindByUsername(username string) (model.Users, error)
 	UpdateUser(userID int, updatedUser *model.Users) error
 	DeleteUser(userID int) error
+	GetUserByID(userID int) (*model.Users, error)
 }

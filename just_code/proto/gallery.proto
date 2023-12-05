@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package gallery;
+option go_package = "https://github.com/b4khytu1y/Image-storage-service/just_code"
+service GalleryService {
+    rpc StreamGallery(StreamGalleryRequest) returns (stream ImageResponse);
+}
+
+message StreamGalleryRequest {
+}
+
+message ImageResponse {
+    string id = 1;          
+    string name = 2;        
+    bytes content = 3;       
+    int64 timestamp = 4;     
+}

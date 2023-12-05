@@ -20,6 +20,7 @@ type Config struct {
 	TokenMaxAge    int           `mapstructure:"TOKEN_MAXAGE"`
 }
 
+//nolint:all
 func LoadConfig(path string) (config Config, err error) {
 	path = "../../../"
 
