@@ -1,5 +1,6 @@
 LINTER_COMMAND := golangci-lint run
-
+swagger:
+	swag init --dir ./cmd/app/auth --parseDependency
 lint:
     $(LINTER_COMMAND)
 

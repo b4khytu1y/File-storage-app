@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"golang-jwttoken/config"
-	"golang-jwttoken/internal/controller"
-	"golang-jwttoken/internal/helper"
 	"golang-jwttoken/internal/model"
 	"golang-jwttoken/internal/repository"
 	"golang-jwttoken/internal/router"
 	"golang-jwttoken/internal/service"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"golang-jwttoken/internal/controller"
 
 	"log"
 	"net/http"
@@ -39,7 +43,7 @@ func main() {
 
 	loadConfig, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatal("🚀 Could not load environment variables", err)
+		log.Fatal("Could not load environment variables", err)
 	}
 
 	db := config.ConnectionDB(&loadConfig)
@@ -55,7 +59,9 @@ func main() {
 
 	authenticationController := controller.NewAuthenticationController(authenticationService)
 	usersController := controller.NewUsersController(userRepository)
-	fileController := controller.NewFileController(fileService)
+	fileController := controller.NewFileControllerBuilder().
+		SetFileService(fileService).
+		Build()
 	routes := router.NewRouter(userRepository, authenticationController, usersController, fileController)
 
 	server := &http.Server{
@@ -65,8 +71,21 @@ func main() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("ListenAndServe(): %s", err)
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	server_err := server.ListenAndServe()
-	helper.ErrorPanic(server_err)
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
 
+	log.Println("Server exiting")
 }

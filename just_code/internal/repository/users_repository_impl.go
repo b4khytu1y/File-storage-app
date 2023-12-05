@@ -18,7 +18,6 @@ func NewUsersRepositoryImpl(Db *gorm.DB) UsersRepository {
 	return &UsersRepositoryImpl{Db: Db}
 }
 
-// Delete implements UsersRepository
 func (u *UsersRepositoryImpl) Delete(usersId int) {
 	var users model.Users
 	result := u.Db.Where("id = ?", usersId).Delete(&users)

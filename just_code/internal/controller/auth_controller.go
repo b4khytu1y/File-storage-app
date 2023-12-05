@@ -20,6 +20,16 @@ func NewAuthenticationController(service service.AuthenticationService) *Authent
 	return &AuthenticationController{authenticationService: service}
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticate user and return token
+// @Tags authentication
+// @Accept  json
+// @Produce  json
+// @Param loginRequest body request.LoginRequest true "Login Information"
+// @Success 200 {object} response.Response{Data=response.LoginResponse}
+// @Failure 400 {object} response.Response "Invalid username or password"
+// @Router /login [post]
 func (controller *AuthenticationController) Login(ctx *gin.Context) {
 	loginRequest := request.LoginRequest{}
 	err := ctx.ShouldBindJSON(&loginRequest)
@@ -53,6 +63,15 @@ func (controller *AuthenticationController) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, webResponse)
 }
 
+// Register godoc
+// @Summary Register user
+// @Description Register a new user
+// @Tags authentication
+// @Accept  json
+// @Produce  json
+// @Param createUsersRequest body request.CreateUsersRequest true "User Registration Information"
+// @Success 200 {object} response.Response "Successfully created user!"
+// @Router /register [post]
 func (controller *AuthenticationController) Register(ctx *gin.Context) {
 	createUsersRequest := request.CreateUsersRequest{}
 	err := ctx.ShouldBindJSON(&createUsersRequest)

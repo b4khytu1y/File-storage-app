@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter(userRepository repository.UsersRepository, authenticationController *controller.AuthenticationController, usersController *controller.UserController, fileController *controller.FileController) *gin.Engine {
@@ -37,6 +39,9 @@ func NewRouter(userRepository repository.UsersRepository, authenticationControll
 	filesRouter.PUT("/:id", middleware.DeserializeUser(userRepository), fileController.UpdateFile)
 	filesRouter.DELETE("/delete/:id", middleware.DeserializeUser(userRepository), fileController.DeleteFile)
 	filesRouter.POST("/upload", middleware.DeserializeUser(userRepository), fileController.UploadFile)
+	service.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	service.Static("/assets", "./docs")
+
 	return service
 
 }
