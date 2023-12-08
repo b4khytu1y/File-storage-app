@@ -1,10 +1,11 @@
 <b>Golang File-storage monolith app</b>
 <p><b>List of used technology:</b>
-<p>•	gin - Gin Web Framework
-<p>•	sql - Extensions to database/sql.
-<p>•	pgx - PostgreSQL driver and toolkit for Go
-<p>•	viper - Go configuration with fangs
-<p>•	go-redis - Redis client for Golang
-<p>•	goose - Database migrations
-<p>•	Docker - Docker
-<p>•	Gin-swagger - swagger for gin
+* [gin](https://github.com/gin-gonic/gin) - Gin Web Framework
+* [sql](https://pkg.go.dev/database/sql) - Extensions to database/sql.
+* [pgx](https://github.com/jackc/pgx) - PostgreSQL driver and toolkit for Go
+* [viper](https://github.com/spf13/viper) - Go configuration with fangs
+* [go-redis](https://github.com/go-redis/redis) - Redis client for Golang
+* [goose](https://github.com/pressly/goose) - Database migrations
+* [Docker](https://www.docker.com/) - Docker
+* [Gin-swagger](https://github.com/swaggo/gin-swagger) - swagger for gin
+* [Kafka](https://kafka.apache.org/) - kafka message broker
