@@ -1,5 +1,5 @@
 <b>Golang File-storage monolith app</b>
-<p><b>List of used technology:</b></p>
+<p>####<b>List of used technology:</b></p>
 <p>* [gin](https://github.com/gin-gonic/gin) - Gin Web Framework</p>
 <p>* [sql](https://pkg.go.dev/database/sql) - Extensions to database/sql.</p>
 <p>* [pgx](https://github.com/jackc/pgx) - PostgreSQL driver and toolkit for Go</p>
