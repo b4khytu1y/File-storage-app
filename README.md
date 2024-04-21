@@ -10,4 +10,5 @@
 * [Docker](https://www.docker.com/) - Docker
 * [Gin-swagger](https://github.com/swaggo/gin-swagger) - swagger for gin
 * [Kafka](https://kafka.apache.org/) - kafka message broker
-![Uploading image.png…]()
+
+![image](https://github.com/b4khytu1y/File-storage-app/assets/96124329/1303952a-4a81-4e5d-b063-a2ebbe39e1a9)
